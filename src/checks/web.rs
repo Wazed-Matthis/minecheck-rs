@@ -20,7 +20,6 @@ pub fn build_client(proxy: &mut Proxy) -> Result<Client, Error> {
     .proxy(
         reqwest::Proxy::all(format!("http://{}", proxy.combo))
             .unwrap()
-            .basic_auth("iegyaoxb", "2tfxeft2cydh"),
     )
     .build()
 }
