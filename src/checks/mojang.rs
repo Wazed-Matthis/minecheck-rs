@@ -1,9 +1,9 @@
-use reqwest::Error;
-use serde_json::json;
 use super::Check;
 use super::Proxy;
 use crate::{checks::web, types::Account};
 use async_trait::async_trait;
+use reqwest::Error;
+use serde_json::json;
 
 pub struct MojangCheck;
 
