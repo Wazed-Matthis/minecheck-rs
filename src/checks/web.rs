@@ -25,9 +25,32 @@ pub async fn get_request(url: String, proxy: &mut Proxy) -> Result<Value, Error>
 }
 
 pub fn build_client(proxy: &mut Proxy) -> Result<Client, Error> {
-    ClientBuilder::default()
-        .timeout(Duration::from_millis(1750))
-        .user_agent("Mozilla/5.0")
-        .proxy(reqwest::Proxy::all(format!("http://{}", proxy.combo)).unwrap())
-        .build()
+    let proxy_clone = proxy.clone();
+    if let Some(username) = proxy_clone.combo.split(':').nth(2) {
+        if let Some(password) = proxy_clone.combo.split(':').nth(3) {
+            let proxy_string = format!(
+                "http://{}:{}",
+                proxy_clone.combo.split(':').next().unwrap(),
+                proxy_clone.combo.split(':').nth(1).unwrap()
+            );
+
+            ClientBuilder::default()
+                .timeout(Duration::from_millis(1750))
+                .user_agent("Mozilla/5.0")
+                .proxy(
+                    reqwest::Proxy::all(proxy_string)
+                        .unwrap()
+                        .basic_auth(username, password),
+                )
+                .build()
+        } else {
+            Ok(Client::default())
+        }
+    } else {
+        ClientBuilder::default()
+            .timeout(Duration::from_millis(1750))
+            .user_agent("Mozilla/5.0")
+            .proxy(reqwest::Proxy::all(proxy_clone.combo).unwrap())
+            .build()
+    }
 }
