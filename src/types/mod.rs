@@ -25,6 +25,7 @@ impl Account {
 #[derive(Clone, Debug)]
 pub enum AccountType {
     MinecraftNfa,
+    MinecraftSfa,
     MinecraftHypixel {
         level: f64,
         rank: String,

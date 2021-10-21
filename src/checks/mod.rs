@@ -4,6 +4,7 @@ use hypixel::HypixelCheck;
 use mojang::MojangCheck;
 pub mod hypixel;
 pub mod mojang;
+pub mod sfa;
 pub mod web;
 
 pub async fn run_checks(account: &mut Account, proxy: &mut Proxy) -> Result<(), CheckError> {
@@ -18,6 +19,16 @@ pub async fn run_checks(account: &mut Account, proxy: &mut Proxy) -> Result<(), 
     };
 
     match run_check(HypixelCheck, account, &mut proxy.clone()).await {
+        Ok(_) => {}
+        Err(err) => {
+            return Err(CheckError::new(String::from(format!(
+                "failed request... {}",
+                err
+            ))));
+        }
+    };
+
+    match run_check(sfa::SFACheck, account, &mut proxy.clone()).await {
         Ok(_) => {}
         Err(err) => {
             return Err(CheckError::new(String::from(format!(

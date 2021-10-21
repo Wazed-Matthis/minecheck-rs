@@ -84,9 +84,13 @@ pub fn write_account(account: Account) {
             last_login: _,
             rank,
             level,
-        } = acc_type
+        } = acc_type.clone()
         {
             account_string.push_str(format!(" | Hypixel rank:{}, level: {}", rank, level).as_str());
+        }
+
+        if let AccountType::MinecraftSfa = acc_type {
+            account_string.push_str(" | Semi Full Access account!")
         }
     }
     account_string.push('\n');
