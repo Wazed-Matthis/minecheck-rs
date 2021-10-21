@@ -74,7 +74,7 @@ pub fn write_account(account: Account) {
             .write(true)
             .append(true)
             .create(true)
-            .open("checked.txt")
+            .open("nfa.txt")
             .unwrap(),
     );
     let mut account_string = format!("{}:{}", account.email, account.password);
@@ -86,11 +86,25 @@ pub fn write_account(account: Account) {
             level,
         } = acc_type.clone()
         {
-            account_string.push_str(format!(" | Hypixel rank:{}, level: {}", rank, level).as_str());
+            file = BufWriter::new(
+                OpenOptions::new()
+                    .write(true)
+                    .append(true)
+                    .create(true)
+                    .open("hypixel.txt")
+                    .unwrap(),
+            );
         }
 
         if let AccountType::MinecraftSfa = acc_type {
-            account_string.push_str(" | Semi Full Access account!")
+            file = BufWriter::new(
+                OpenOptions::new()
+                    .write(true)
+                    .append(true)
+                    .create(true)
+                    .open("sfa.txt")
+                    .unwrap(),
+            );
         }
     }
     account_string.push('\n');
