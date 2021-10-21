@@ -1,8 +1,8 @@
-use crate::types::{Account, AccountType};
-use reqwest::Error;
 use super::Check;
-use async_trait::async_trait;
 use super::{web, Proxy};
+use crate::types::{Account, AccountType};
+use async_trait::async_trait;
+use reqwest::Error;
 
 pub struct HypixelCheck;
 
