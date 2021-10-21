@@ -8,7 +8,7 @@ pub struct HypixelCheck;
 
 #[async_trait]
 impl Check for HypixelCheck {
-    async fn check(self, account: &mut Account, proxy: Proxy) -> Result<(), Error> {
+    async fn check(self, account: &mut Account, proxy: &mut Proxy) -> Result<(), Error> {
         let resp = web::get_request(
             format!("https://api.slothpixel.me/api/players/{}", account.uuid),
             proxy,

@@ -9,7 +9,7 @@ pub struct MojangCheck;
 
 #[async_trait]
 impl Check for MojangCheck {
-    async fn check(self, account: &mut Account, proxy: Proxy) -> Result<(), Error> {
+    async fn check(self, account: &mut Account, proxy: &mut Proxy) -> Result<(), Error> {
         let mojang_url = "https://authserver.mojang.com/authenticate";
         let response = web::post_request(
             mojang_url.to_string(),
