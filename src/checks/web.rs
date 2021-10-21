@@ -1,4 +1,4 @@
-use std::{time::Duration};
+use std::time::Duration;
 
 use reqwest::{Client, ClientBuilder, Error};
 use serde_json::Value;

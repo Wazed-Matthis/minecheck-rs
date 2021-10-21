@@ -1,5 +1,4 @@
-
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct Account {
     pub email: String,
     pub password: String,
@@ -7,7 +6,7 @@ pub struct Account {
     pub uuid: String,
     pub username: String,
     pub banned: bool,
-    pub account_type: Option<AccountType>
+    pub account_type: Option<AccountType>,
 }
 
 impl Account {
@@ -19,27 +18,62 @@ impl Account {
             uuid: String::new(),
             username: String::new(),
             banned: false,
-            account_type: None 
+            account_type: None,
         }
     }
 }
 #[derive(Clone, Debug)]
-pub enum AccountType{
+pub enum AccountType {
     MinecraftNfa,
-    MinecraftHypixel{
+    MinecraftHypixel {
         level: f64,
         rank: String,
-        last_login: i64
+        last_login: i64,
     },
-    Netflix{
+    Netflix {
         sub_type: String,
     },
-    Steam{
+    Steam {
         games: Vec<String>,
         level: i32,
-        vac_bans: Vec<String>
+        vac_bans: Vec<String>,
     },
-    Uplay{
-        games: Vec<String>
+    Uplay {
+        games: Vec<String>,
+    },
+}
+
+#[derive(Clone, Debug)]
+pub struct Proxy {
+    pub combo: String,
+    pub use_count: i32,
+    pub proxy_type: ProxyType,
+}
+
+impl Proxy {
+    pub fn new(combo: String, use_count: i32, proxy_type: ProxyType) -> Self {
+        Self {
+            combo,
+            use_count,
+            proxy_type,
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
+pub enum ProxyType {
+    Http,
+    Https { username: String, password: String },
+    Socks4,
+    Socks5,
+}
+
+pub struct CheckError {
+    pub reason: String,
+}
+
+impl CheckError {
+    pub fn new(reason: String) -> Self {
+        Self { reason }
     }
 }

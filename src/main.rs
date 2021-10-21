@@ -4,15 +4,9 @@
 use std::{
     fs::OpenOptions,
     io::{BufRead, BufReader, BufWriter, Write},
-    os::unix::prelude::OsStrExt,
 };
 
-use reqwest::Error;
-
-use crate::{
-    checks::{CheckError, Proxy, ProxyType},
-    types::{Account, AccountType},
-};
+use crate::types::*;
 pub mod checks;
 pub mod types;
 
@@ -87,7 +81,7 @@ pub fn write_account(account: Account) {
 
     if let Some(acc_type) = account.account_type {
         if let AccountType::MinecraftHypixel {
-            last_login,
+            last_login: _,
             rank,
             level,
         } = acc_type
