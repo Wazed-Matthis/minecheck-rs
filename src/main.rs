@@ -45,7 +45,7 @@ async fn main() {
 
     for ele in accounts {
         let mut account = Account::new(ele);
-        let proxy = Proxy::new(proxies.get(0).unwrap().to_string(), 0, ProxyType::Http);
+        let proxy = Proxy::new(proxies.get(current_index).unwrap().to_string(), 0, ProxyType::Http);
         handles.push(tokio::spawn(async move {
             match checks::run_checks(&mut account, &mut proxy.clone()).await {
                 Ok(_) => {
@@ -59,7 +59,11 @@ async fn main() {
                 }
             };
         }));
-        current_index += 1;
+        current_index = if current_index >= proxies.len() -1 {
+            0
+        } else {
+            current_index + 1
+        };
     }
 
     for handle in handles {
@@ -78,34 +82,6 @@ pub fn write_account(account: Account) {
     );
     let mut account_string = format!("{}:{}", account.email, account.password);
 
-    if let Some(acc_type) = account.account_type {
-        if let AccountType::MinecraftHypixel {
-            last_login: _,
-            rank,
-            level,
-        } = acc_type.clone()
-        {
-            file = BufWriter::new(
-                OpenOptions::new()
-                    .write(true)
-                    .append(true)
-                    .create(true)
-                    .open("hypixel.txt")
-                    .unwrap(),
-            );
-        }
-
-        if let AccountType::MinecraftSfa = acc_type {
-            file = BufWriter::new(
-                OpenOptions::new()
-                    .write(true)
-                    .append(true)
-                    .create(true)
-                    .open("sfa.txt")
-                    .unwrap(),
-            );
-        }
-    }
     account_string.push('\n');
     file.write(account_string.as_bytes()).unwrap();
 }
