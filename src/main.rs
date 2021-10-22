@@ -4,7 +4,10 @@
 use std::{
     fs::OpenOptions,
     io::{BufRead, BufReader, BufWriter, Write},
+    sync::Mutex,
 };
+
+use tokio::{runtime::Handle, task::JoinHandle};
 
 use crate::types::*;
 pub mod checks;
@@ -25,8 +28,8 @@ async fn main() {
 
     let proxies: Vec<String> = proxy_file.lines().collect::<Result<_, _>>().unwrap();
 
-    let mut proxy = Proxy::new(proxies.get(0).unwrap().to_string(), 0, ProxyType::Http);
     let mut current_index = 0;
+
     let account_file = BufReader::new(
         OpenOptions::new()
             .write(true)
@@ -38,33 +41,29 @@ async fn main() {
 
     let accounts: Vec<String> = account_file.lines().collect::<Result<_, _>>().unwrap();
 
+    let mut handles = Vec::<JoinHandle<()>>::new();
+
     for ele in accounts {
         let mut account = Account::new(ele);
-
-        match checks::run_checks(&mut account, &mut proxy).await {
-            Ok(_) => {
-                println!("Account {} is banned: {}", account.email, account.banned);
-                if !account.banned {
-                    write_account(account)
-                }
-            }
-            Err(err) => {
-                println!("{}", err.reason);
-                current_index += 1;
-                proxy = Proxy::new(
-                    match proxies.get(current_index) {
-                        Some(proxy) => proxy,
-                        None => {
-                            current_index = 0;
-                            proxies.get(current_index).unwrap()
-                        }
+        let proxy = Proxy::new(proxies.get(0).unwrap().to_string(), 0, ProxyType::Http);
+        handles.push(tokio::spawn(async move {
+            match checks::run_checks(&mut account, &mut proxy.clone()).await {
+                Ok(_) => {
+                    println!("Account {} is banned: {}", account.email, account.banned);
+                    if !account.banned {
+                        write_account(account)
                     }
-                    .to_string(),
-                    0,
-                    ProxyType::Http,
-                )
-            }
-        };
+                }
+                Err(err) => {
+                    println!("{}", err.reason);
+                }
+            };
+        }));
+        current_index += 1;
+    }
+
+    for handle in handles {
+        handle.await.expect("Error in task");
     }
 }
 

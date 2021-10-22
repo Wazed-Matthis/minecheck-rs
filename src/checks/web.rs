@@ -48,7 +48,7 @@ pub fn build_client(proxy: &mut Proxy) -> Result<Client, Error> {
         }
     } else {
         ClientBuilder::default()
-            .timeout(Duration::from_millis(1750))
+            .timeout(Duration::from_millis(10000))
             .user_agent("Mozilla/5.0")
             .proxy(reqwest::Proxy::all(proxy_clone.combo).unwrap())
             .build()
