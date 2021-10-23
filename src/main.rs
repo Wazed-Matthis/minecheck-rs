@@ -4,10 +4,7 @@
 use std::{
     fs::OpenOptions,
     io::{BufRead, BufReader, BufWriter, Write},
-    sync::Mutex,
 };
-
-use tokio::{runtime::Handle, task::JoinHandle};
 
 use crate::types::*;
 pub mod checks;
@@ -16,17 +13,6 @@ pub mod types;
 #[tokio::main]
 async fn main() {
     println!("Hello, world!");
-
-    let proxy_file = BufReader::new(
-        OpenOptions::new()
-            .write(true)
-            .read(true)
-            .create(true)
-            .open("./proxies.txt")
-            .unwrap(),
-    );
-
-    let proxies: Vec<String> = proxy_file.lines().collect::<Result<_, _>>().unwrap();
 
     let mut current_index = 0;
 
@@ -39,32 +25,52 @@ async fn main() {
             .unwrap(),
     );
 
-    let accounts: Vec<String> = account_file.lines().collect::<Result<_, _>>().unwrap();
+    let mut handles = Vec::new();
 
-    let mut handles = Vec::<JoinHandle<()>>::new();
+    account_file
+        .lines()
+        .collect::<Result<Vec<String>, _>>()
+        .unwrap()
+        .into_iter()
+        .map(|account_line| Account::new(account_line))
+        .for_each(|mut account| {
+            let proxies = BufReader::new(
+                OpenOptions::new()
+                    .write(true)
+                    .read(true)
+                    .create(true)
+                    .open("./proxies.txt")
+                    .unwrap(),
+            )
+            .lines()
+            .collect::<Result<Vec<String>, _>>()
+            .unwrap();
 
-    for ele in accounts {
-        let mut account = Account::new(ele);
-        let proxy = Proxy::new(proxies.get(current_index).unwrap().to_string(), 0, ProxyType::Http);
-        handles.push(tokio::spawn(async move {
-            match checks::run_checks(&mut account, &mut proxy.clone()).await {
-                Ok(_) => {
-                    println!("Account {} is banned: {}", account.email, account.banned);
-                    if !account.banned {
-                        write_account(account)
+            let proxy = Proxy::new(
+                proxies.get(current_index).unwrap().to_string(),
+                0,
+                ProxyType::Http,
+            );
+
+            handles.push(tokio::spawn(async move {
+                match checks::run_checks(&mut account, &mut proxy.clone()).await {
+                    Ok(_) => {
+                        println!("Account {} is banned: {}", account.email, account.banned);
+                        if !account.banned {
+                            write_account(account)
+                        }
                     }
-                }
-                Err(err) => {
-                    println!("{}", err.reason);
-                }
+                    Err(err) => {
+                        println!("{}", err.reason);
+                    }
+                };
+            }));
+            current_index = if current_index < proxies.len() - 1 {
+                current_index + 1
+            } else {
+                0
             };
-        }));
-        current_index = if current_index >= proxies.len() -1 {
-            0
-        } else {
-            current_index + 1
-        };
-    }
+        });
 
     for handle in handles {
         handle.await.expect("Error in task");

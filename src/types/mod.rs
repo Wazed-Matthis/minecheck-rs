@@ -1,4 +1,4 @@
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct Account {
     pub email: String,
     pub password: String,
@@ -14,11 +14,7 @@ impl Account {
         Account {
             email: combo.split(':').next().unwrap().to_string(),
             password: combo.split(':').nth(1).unwrap().to_string(),
-            access_token: String::new(),
-            uuid: String::new(),
-            username: String::new(),
-            banned: false,
-            account_type: None,
+            ..Default::default()
         }
     }
 }
@@ -44,7 +40,7 @@ pub enum AccountType {
     },
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct Proxy {
     pub combo: String,
     pub use_count: i32,
@@ -69,6 +65,13 @@ pub enum ProxyType {
     Socks5,
 }
 
+impl Default for ProxyType {
+    fn default() -> Self {
+        ProxyType::Http
+    }
+}
+
+#[derive(Clone, Debug, Default)]
 pub struct CheckError {
     pub reason: String,
 }

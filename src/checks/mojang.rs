@@ -26,8 +26,6 @@ impl Check for MojangCheck {
         )
         .await?;
 
-        println!("{}", &response);
-
         account.banned = response["selectedProfile"].is_null();
         account.access_token = response["accessToken"].to_string();
         account.username = response["selectedProfile"]["name"].to_string();

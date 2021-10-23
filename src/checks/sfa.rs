@@ -26,8 +26,6 @@ impl Check for SFACheck {
             account.account_type = Some(AccountType::MinecraftSfa);
         }
 
-        println!("{}", security_text);
-
         Ok(())
     }
 }

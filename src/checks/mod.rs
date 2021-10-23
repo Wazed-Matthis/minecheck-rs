@@ -8,34 +8,25 @@ pub mod sfa;
 pub mod web;
 
 pub async fn run_checks(account: &mut Account, proxy: &mut Proxy) -> Result<(), CheckError> {
-    match run_check(MojangCheck, account, &mut proxy.clone()).await {
-        Ok(_) => {}
-        Err(err) => {
-            return Err(CheckError::new(String::from(format!(
-                "failed request... {}",
-                err
-            ))));
-        }
+    if let Err(err) = run_check(MojangCheck, account, &mut proxy.clone()).await {
+        return Err(CheckError::new(String::from(format!(
+            "failed request... {}",
+            err
+        ))));
     };
 
-    match run_check(HypixelCheck, account, &mut proxy.clone()).await {
-        Ok(_) => {}
-        Err(err) => {
-            return Err(CheckError::new(String::from(format!(
-                "failed request... {}",
-                err
-            ))));
-        }
+    if let Err(err) = run_check(HypixelCheck, account, &mut proxy.clone()).await {
+        return Err(CheckError::new(String::from(format!(
+            "failed request... {}",
+            err
+        ))));
     };
 
-    match run_check(sfa::SFACheck, account, &mut proxy.clone()).await {
-        Ok(_) => {}
-        Err(err) => {
-            return Err(CheckError::new(String::from(format!(
-                "failed request... {}",
-                err
-            ))));
-        }
+    if let Err(err) = run_check(sfa::SFACheck, account, &mut proxy.clone()).await {
+        return Err(CheckError::new(String::from(format!(
+            "failed request... {}",
+            err
+        ))));
     };
 
     if account.banned {
