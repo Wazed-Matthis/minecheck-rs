@@ -61,7 +61,7 @@ async fn main() {
                         }
                     }
                     Err(err) => {
-                        println!("{}", err.reason);
+                        println!("{:#}", err.reason);
                     }
                 };
             }));

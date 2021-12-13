@@ -8,26 +8,17 @@ pub mod sfa;
 pub mod web;
 
 pub async fn run_checks(account: &mut Account, proxy: &mut Proxy) -> Result<(), CheckError> {
-    if let Err(err) = run_check(MojangCheck, account, &mut proxy.clone()).await {
-        return Err(CheckError::new(String::from(format!(
-            "failed request... {}",
-            err
-        ))));
-    };
+    run_check(MojangCheck, account, &mut proxy.clone())
+        .await
+        .map_err(|_| CheckError::new("failed req...".to_owned()))?;
 
-    if let Err(err) = run_check(HypixelCheck, account, &mut proxy.clone()).await {
-        return Err(CheckError::new(String::from(format!(
-            "failed request... {}",
-            err
-        ))));
-    };
+    run_check(HypixelCheck, account, &mut proxy.clone())
+        .await
+        .map_err(|_| CheckError::new("failed req...".to_owned()))?;
 
-    if let Err(err) = run_check(sfa::SFACheck, account, &mut proxy.clone()).await {
-        return Err(CheckError::new(String::from(format!(
-            "failed request... {}",
-            err
-        ))));
-    };
+    run_check(sfa::SFACheck, account, &mut proxy.clone())
+        .await
+        .map_err(|_| CheckError::new("failed req...".to_owned()))?;
 
     if account.banned {
         proxy.use_count += 1;
@@ -44,13 +35,10 @@ pub trait Check {
     async fn check(self, account: &mut Account, proxy: &mut Proxy) -> Result<(), reqwest::Error>;
 }
 
-pub async fn run_check<T>(
-    checker: T,
+pub async fn run_check(
+    checker: impl Check,
     account: &mut Account,
     proxy: &mut Proxy,
-) -> Result<(), reqwest::Error>
-where
-    T: Check,
-{
+) -> Result<(), reqwest::Error> {
     checker.check(account, proxy).await
 }
